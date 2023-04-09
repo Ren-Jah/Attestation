@@ -12,8 +12,8 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ("author_link", "text")
-    list_filter = ("author", "text")
+    list_display = ("author_link", "text", "created")
+    list_filter = ("author", "text", "created")
 
     def author_link(self, obj):
         """Функция позволяющая перенаправить на страницу редактирования автора поста"""
@@ -22,8 +22,8 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("title", "text", "author_link")
-    list_filter = ("title",)
+    list_display = ("title", "text", "author_link", "created")
+    list_filter = ("title", "created")
 
     def author_link(self, obj):
         """Функция позволяющая перенаправить на страницу редактирования автора поста"""
