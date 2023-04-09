@@ -1,29 +1,22 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.validators import EmailValidator
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 
-from core.validators import validate_password, censored_title
+from core.validators import validate_password, censored_title, correct_email_validator
 
 
 class DatesModelMixin(models.Model):
-    """`DatesModelMixin` add `created` and `updated` fields. These fields will update automatically on `save()`."""
+    """`DatesModelMixin` добавляет поля `created` и `updated`.
+     Заполнение полей происходит при создании или при обновлении моделей."""
 
     class Meta:
         abstract = True
 
     created = models.DateField(auto_now_add=True, verbose_name="Дата создания")
     updated = models.DateField(auto_now=True, verbose_name="Дата последнего обновления")
-
-
-class UserRole:
-    MEMBER = 'member'
-    ADMIN = 'admin'
-    choices = ((MEMBER, 'Пользователь'),
-               (ADMIN, 'Администратор'))
 
 
 class User(AbstractUser, DatesModelMixin):
@@ -36,10 +29,7 @@ class User(AbstractUser, DatesModelMixin):
     password = models.CharField(verbose_name="Пароль", max_length=255, validators=[validate_password])
     phone_num = models.CharField(verbose_name="Телефонный номер", max_length=30, blank=True, null=True)
     birth_date = models.DateField(verbose_name="Дата рождения", blank=True, null=True)
-    role = models.CharField(verbose_name="Роль", choices=UserRole.choices, default=UserRole.MEMBER, max_length=20)
-    email = models.EmailField(verbose_name="эл.почта", blank=True,  validators=[EmailValidator(
-        message="Регистрация с данного домена запрещена.",
-        allowlist=["mail.ru", "yandex.ru"])])
+    email = models.EmailField(verbose_name="эл.почта", blank=True,  validators=[correct_email_validator])
 
     def __str__(self):
         return f'{self.username}'
@@ -47,7 +37,8 @@ class User(AbstractUser, DatesModelMixin):
 
 # post validators
 def check_birth_date(obj):
-    birth_date = User.objects.get_by_natural_key(obj).birth_date
+    """Валидатор даты рождения пользователя. Ограничение на написание постов с 18 лет"""
+    birth_date = User.objects.get(id=obj).birth_date
     diff = relativedelta(date.today(), birth_date).years
     if diff < 18:
         raise ValidationError("Автор поста не достиг 18 лет")

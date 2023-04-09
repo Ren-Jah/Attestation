@@ -6,15 +6,9 @@ from django.contrib.auth.models import Group
 from core.models import User, Comment, Post
 
 
-# @admin.action(description='Обнуляет количество книг')
-# def set_quantity_in_zero(modeladmin, request, queryset):
-#     queryset.update(quantity_in=0)
-
-
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("username",  "phone_num", "birth_date", "role", "email")
+    list_display = ("username",  "phone_num", "birth_date", "is_staff", "email")
     list_filter = ("username", "birth_date")
-    # actions = [set_quantity_in_zero]
 
 
 class CommentAdmin(admin.ModelAdmin):
@@ -22,6 +16,7 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ("author", "text")
 
     def author_link(self, obj):
+        """Функция позволяющая перенаправить на страницу редактирования автора поста"""
         url = reverse("admin:core_user_change", args=[obj.author.id])
         return format_html(f'<a href="{url}">{obj.author}</a>')
 
@@ -31,6 +26,7 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ("title",)
 
     def author_link(self, obj):
+        """Функция позволяющая перенаправить на страницу редактирования автора поста"""
         url = reverse("admin:core_user_change", args=[obj.author.id])
         return format_html(f'<a href="{url}">{obj.author}</a>')
 

@@ -29,6 +29,7 @@ router.register('comment', CommentViewSet, basename="comment")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/user/", include('core.api.urls')),
     path('api/', include(router.urls)),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
